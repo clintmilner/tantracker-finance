@@ -2,9 +2,10 @@
 import {
     Outlet,
     ScrollRestoration,
-    createRootRoute,
+    createRootRoute, Link,
 } from '@tanstack/react-router'
 import { Meta, Scripts } from '@tanstack/start'
+import {ChartColumnBigIcon} from "lucide-react";
 import type { ReactNode } from 'react'
 import appCss from '../app.css?url'
 
@@ -67,6 +68,11 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             <Meta />
         </head>
         <body>
+        <nav className={'bg-primary p-4 h-20 text-white flex items-center justify-between'}>
+            <Link to={'/'} className={'flex gap-1 items-center font-bold text-2xl'}>
+                <ChartColumnBigIcon className={'text-lime-500'} /> TanTracker
+            </Link>
+        </nav>
         {children}
         <ScrollRestoration />
         <Scripts />
