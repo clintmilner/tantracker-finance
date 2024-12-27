@@ -16,6 +16,7 @@ import {
   ScrollRestoration,
   createRootRoute,
   Link,
+  useNavigate,
 } from '@tanstack/react-router'
 import { Meta, Scripts } from '@tanstack/start'
 import { ChartColumnBigIcon } from 'lucide-react'
@@ -85,6 +86,7 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
+  const navigate = useNavigate()
   return (
     <ClerkProvider>
       <html>
@@ -125,7 +127,17 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
                       },
                     },
                   }}
-                />
+                >
+                  <UserButton.MenuItems>
+                    <UserButton.Action
+                      label={'Dashboard'}
+                      labelIcon={<ChartColumnBigIcon size={16} />}
+                      onClick={() => {
+                        navigate({ to: '/dashboard' })
+                      }}
+                    />
+                  </UserButton.MenuItems>
+                </UserButton>
               </SignedIn>
             </div>
           </nav>
