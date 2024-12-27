@@ -1,4 +1,16 @@
 // app/routes/__root.tsx
+import {Button} from "@/components/ui/button";
+import {getSignedInUserId} from "@/data/getSignedInUserId";
+import {
+    ClerkProvider,
+    SignedIn,
+    SignedOut,
+    SignIn,
+    SignInButton,
+    SignUp,
+    SignUpButton,
+    UserButton
+} from "@clerk/tanstack-start";
 import {
     Outlet,
     ScrollRestoration,
@@ -22,6 +34,12 @@ import poppins900 from '@fontsource/poppins/900.css?url'
 
 
 export const Route = createRootRoute({
+    beforeLoad: async () => {
+        const userId = await getSignedInUserId()
+        return {
+            userId
+        }
+    },
     head: () => ({
         meta: [
             {
@@ -51,6 +69,7 @@ export const Route = createRootRoute({
         ]
     }),
     component: RootComponent,
+    notFoundComponent: () => <div className={'text-3xl text-center py-10 text-muted-foreground'}>Oops! Page Not Found</div>,
 })
 
 function RootComponent() {
@@ -63,6 +82,8 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
     return (
+        <ClerkProvider>
+
         <html>
         <head>
             <Meta />
@@ -72,11 +93,36 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             <Link to={'/'} className={'flex gap-1 items-center font-bold text-2xl'}>
                 <ChartColumnBigIcon className={'text-lime-500'} /> TanTracker
             </Link>
+            <div>
+                <SignedOut>
+                    <div className={'text-white flex items-center'}>
+                        <Button asChild variant={'link'} className={'text-white'}>
+                            <SignInButton />
+                        </Button>
+                        <div className={'w-[1px] h-8 bg-zinc-700'} />
+                        <Button asChild variant={'link'} className={'text-white'}>
+                            <SignUpButton />
+                        </Button>
+                    </div>
+                </SignedOut>
+                <SignedIn>
+                    <UserButton showName appearance={
+                        {
+                            elements: {
+                                userButtonOuterIdentifier: {
+                                    color: 'white'
+                                }
+                            }
+                        }
+                    } />
+                </SignedIn>
+            </div>
         </nav>
         {children}
         <ScrollRestoration />
         <Scripts />
         </body>
         </html>
+        </ClerkProvider>
     )
 }
