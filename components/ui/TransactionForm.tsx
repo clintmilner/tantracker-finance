@@ -21,8 +21,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { categoriesTable } from '@/db/schema'
 import { cn } from '@/lib/utils'
-import { format } from 'date-fns'
+import { addDays, format } from 'date-fns'
 import { CalendarIcon, Inbox } from 'lucide-react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
@@ -33,7 +34,7 @@ const transactionFormSchema = z.object({
   categoryId: z.coerce.number().positive('Please select a category'),
   transactionDate: z
     .date()
-    .max(new Date(), 'Transaction date cannot be in the future'),
+    .max(addDays(new Date(), 1), 'Transaction date cannot be in the future'),
   amount: z.coerce.number().positive('Amount must greater than 0'),
   description: z
     .string()
@@ -41,9 +42,13 @@ const transactionFormSchema = z.object({
     .max(311, 'Description must contain a maximum of 311 characters'),
 })
 
-type FormData = z.infer<typeof transactionFormSchema>
+export type FormData = z.infer<typeof transactionFormSchema>
 
-const TransactionForm = () => {
+interface Props {
+  categories: (typeof categoriesTable.$inferSelect)[]
+  onSubmit: (x: FormData) => Promise<void>
+}
+const TransactionForm = ({ categories, onSubmit }: Props) => {
   const form = useForm<FormData>({
     resolver: zodResolver(transactionFormSchema),
     defaultValues: {
@@ -55,9 +60,15 @@ const TransactionForm = () => {
     },
   })
 
-  const handleSubmit = (data: FormData) => {
-    console.log(data)
+  const handleSubmit = async (data: FormData) => {
+    if (data) {
+      await onSubmit(data)
+    }
   }
+
+  const filteredCategories = categories.filter(
+    (cat) => cat.type === form.getValues('transactionType'),
+  )
 
   return (
     <Form {...form}>
@@ -105,7 +116,16 @@ const TransactionForm = () => {
                       <SelectTrigger>
                         <SelectValue placeholder={'Category'} />
                       </SelectTrigger>
-                      <SelectContent>[empty]</SelectContent>
+                      <SelectContent>
+                        {filteredCategories.map((category) => (
+                          <SelectItem
+                            value={category.id.toString()}
+                            key={category.id}
+                          >
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
                     </Select>
                   </FormControl>
                   <FormMessage />
