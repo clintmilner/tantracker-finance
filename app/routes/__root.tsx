@@ -1,5 +1,6 @@
 // app/routes/__root.tsx
 import { Button } from '@/components/ui/button'
+import { Toaster } from '@/components/ui/toaster'
 import { getSignedInUserId } from '@/data/getSignedInUserId'
 import {
   ClerkProvider,
@@ -142,6 +143,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             </div>
           </nav>
           {children}
+          <Toaster />
           <ScrollRestoration />
           <Scripts />
         </body>

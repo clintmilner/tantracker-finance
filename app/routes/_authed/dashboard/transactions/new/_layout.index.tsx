@@ -2,7 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import TransactionForm, { FormData } from '@/components/ui/TransactionForm'
 import { createTransaction } from '@/data/createTransaction'
 import { getCategories } from '@/data/getCategories'
-import { createFileRoute } from '@tanstack/react-router'
+import { useToast } from '@/hooks/use-toast'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { format } from 'date-fns'
 import { z } from 'zod'
 
@@ -18,6 +19,8 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { categories } = Route.useLoaderData()
+  const { toast } = useToast()
+  const navigate = useNavigate()
   const handleSubmit = async (data: FormData) => {
     const transaction = await createTransaction({
       data: {
@@ -27,7 +30,18 @@ function RouteComponent() {
         transactionDate: format(data.transactionDate, 'yyyy-MM-dd'),
       },
     })
-    console.log({ transaction })
+    toast({
+      title: 'Success',
+      description: 'Transaction created',
+      className: 'bg-green-500 text-white',
+    })
+    await navigate({
+      to: '/dashboard/transactions',
+      search: {
+        month: data.transactionDate.getMonth() + 1,
+        year: data.transactionDate.getFullYear(),
+      },
+    })
   }
   return (
     <Card className={'max-w-screen-md mt-4'}>
