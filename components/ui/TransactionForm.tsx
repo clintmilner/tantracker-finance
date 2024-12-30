@@ -1,3 +1,4 @@
+import { Transaction } from '@/app/routes/_authed/dashboard/transactions/$transactionId/_layout.index'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import {
@@ -24,8 +25,9 @@ import {
 import { categoriesTable } from '@/db/schema'
 import { cn } from '@/lib/utils'
 import { addDays, format } from 'date-fns'
+import { date, integer, numeric, text } from 'drizzle-orm/pg-core'
 import { CalendarIcon, Inbox } from 'lucide-react'
-import { z } from 'zod'
+import { number, z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
@@ -47,16 +49,18 @@ export type FormData = z.infer<typeof transactionFormSchema>
 interface Props {
   categories: (typeof categoriesTable.$inferSelect)[]
   onSubmit: (x: FormData) => Promise<void>
+  defaultValues?: Transaction
 }
-const TransactionForm = ({ categories, onSubmit }: Props) => {
+const TransactionForm = ({ categories, onSubmit, defaultValues }: Props) => {
   const form = useForm<FormData>({
     resolver: zodResolver(transactionFormSchema),
     defaultValues: {
       transactionType: 'income',
       amount: 0,
-      description: '',
       categoryId: 0,
+      description: '',
       transactionDate: new Date(),
+      ...defaultValues,
     },
   })
 

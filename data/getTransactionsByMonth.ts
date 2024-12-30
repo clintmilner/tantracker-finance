@@ -23,12 +23,12 @@ export const getTransactionsByMonth = createServerFn({
     const earliestDate = new Date(data.year, data.month - 1, 1)
     const latestDate = new Date(data.year, data.month, 0) // gets the last day of the prev month
 
-    const transactions = await db
+    return db
       .select({
         id: transactionsTable.id,
         description: transactionsTable.description,
         amount: transactionsTable.amount,
-        transactionsDate: transactionsTable.transactionDate,
+        transactionDate: transactionsTable.transactionDate,
         category: categoriesTable.name,
         transactionType: categoriesTable.type,
       })
@@ -51,5 +51,4 @@ export const getTransactionsByMonth = createServerFn({
         categoriesTable,
         eq(transactionsTable.categoryId, categoriesTable.id),
       )
-    return transactions
   })

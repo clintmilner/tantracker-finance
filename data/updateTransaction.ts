@@ -3,9 +3,11 @@ import { db } from '@/db'
 import { transactionsTable } from '@/db/schema'
 import { createServerFn } from '@tanstack/start'
 import { addDays } from 'date-fns'
+import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 
-const transactionSchema = z.object({
+const schema = z.object({
+  id: z.number(),
   categoryId: z.coerce.number().positive('Please select a category'),
   transactionDate: z.string().refine((value) => {
     const parsedDate = new Date(value)
@@ -20,25 +22,24 @@ const transactionSchema = z.object({
     .max(311, 'Description must contain a maximum of 311 characters'),
 })
 
-type ValidatorData = z.infer<typeof transactionSchema>
-
-export const createTransaction = createServerFn({
+export const updateTransaction = createServerFn({
   method: 'POST',
 })
   .middleware([authMiddleware])
-  .validator((data: ValidatorData) => {
-    return transactionSchema.parse(data)
-  })
-  .handler(async ({ data, context }) => {
-    const userId = context.userId
-    return db
-      .insert(transactionsTable)
-      .values({
-        userId,
+  .validator((data: z.infer<typeof schema>) => schema.parse(data))
+  .handler(async ({ context, data }) => {
+    await db
+      .update(transactionsTable)
+      .set({
         amount: data.amount.toString(),
-        description: data.description,
         categoryId: data.categoryId,
         transactionDate: data.transactionDate,
+        description: data.description,
       })
-      .returning()
+      .where(
+        and(
+          eq(transactionsTable.userId, context.userId),
+          eq(transactionsTable.id, data.id),
+        ),
+      )
   })
