@@ -18,8 +18,10 @@ interface Props {
   month: number
   year: number
   yearsRange: number[]
+  transactions: any[]
 }
-const AllTransactions = ({ month, year, yearsRange }: Props) => {
+const AllTransactions = ({ month, year, yearsRange, transactions }: Props) => {
+  console.log(transactions)
   const [selectedYear, setSelectedYear] = useState(year)
   const [selectedMonth, setSelectedMonth] = useState(month)
   const selectedDate = new Date(year, month - 1, 1)
