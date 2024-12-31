@@ -25,7 +25,7 @@ import { Link, useRouter } from '@tanstack/react-router'
 import { format } from 'date-fns'
 import { Library, PencilIcon } from 'lucide-react'
 import { useState } from 'react'
-interface Transaction {
+export interface Transaction {
   id: number
   description: string
   amount: string
@@ -142,7 +142,7 @@ const AllTransactions = ({ month, year, yearsRange, transactions }: Props) => {
                     </TableCell>
                     <TableCell>{row.category}</TableCell>
                     <TableCell>
-                      ${numeral(row.amount).format('0,0[.]00')}
+                      £{numeral(row.amount).format('0,0[.]00')}
                     </TableCell>
                     <TableCell className={'text-right'}>
                       <Button

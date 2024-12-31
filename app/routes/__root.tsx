@@ -101,7 +101,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
             }
           >
             <Link
-              to={'/'}
+              to={'/dashboard'}
               className={'flex gap-1 items-center font-bold text-2xl'}
             >
               <ChartColumnBigIcon className={'text-lime-500'} /> TanTracker
@@ -133,8 +133,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
                     <UserButton.Action
                       label={'Dashboard'}
                       labelIcon={<ChartColumnBigIcon size={16} />}
-                      onClick={() => {
-                        navigate({ to: '/dashboard' })
+                      onClick={async () => {
+                        await navigate({ to: '/dashboard' })
                       }}
                     />
                   </UserButton.MenuItems>
