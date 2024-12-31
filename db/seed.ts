@@ -5,7 +5,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 const db = drizzle(process.env.DATABASE_URL!)
 
-const categoriesSeedData: (typeof categoriesTable.$inferInsert)[] = [
+export const categoriesSeedData: (typeof categoriesTable.$inferInsert)[] = [
   {
     name: 'Salary',
     type: 'income',

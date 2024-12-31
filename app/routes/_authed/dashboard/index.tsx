@@ -8,7 +8,7 @@ import { z } from 'zod'
 
 const today = new Date()
 const schema = z.object({
-  year: z
+  financialYear: z
     .number()
     .min(today.getFullYear() - 100)
     .max(today.getFullYear())
@@ -18,28 +18,37 @@ const schema = z.object({
 export const Route = createFileRoute('/_authed/dashboard/')({
   validateSearch: schema,
   component: RouteComponent,
-  loaderDeps: ({ search }) => ({ year: search.year }),
+  loaderDeps: ({ search }) => ({ financialYear: search.financialYear }),
   loader: async ({ deps }) => {
-    const year = deps.year ?? today.getFullYear()
     const [transactions, cashflow, yearsRange] = await Promise.all([
       getRecentTransactions(),
       getAnnualCashflow({
         data: {
-          year,
+          year: deps.financialYear ?? today.getFullYear(),
         },
       }),
       getTransactionYearsRange(),
     ])
-    return { transactions, cashflow, yearsRange, year }
+    return {
+      transactions,
+      cashflow,
+      yearsRange,
+      financialYear: deps.financialYear ?? today.getFullYear(),
+    }
   },
 })
 
 function RouteComponent() {
-  const { transactions, cashflow, yearsRange, year } = Route.useLoaderData()
+  const { transactions, cashflow, yearsRange, financialYear } =
+    Route.useLoaderData()
   return (
     <main className={'max-w-screen-xl mx-auto py-5'}>
       <h1 className={'text-4xl font-semibold pb-5'}>Dashboard</h1>
-      <CashflowChart cashflow={cashflow} yearsRange={yearsRange} year={year} />
+      <CashflowChart
+        cashflow={cashflow}
+        yearsRange={yearsRange}
+        financialYear={financialYear}
+      />
       <RecentTransactions transactions={transactions} />
     </main>
   )

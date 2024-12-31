@@ -25,7 +25,7 @@ export const getRecentTransactions = createServerFn({
         categoriesTable,
         eq(transactionsTable.categoryId, categoriesTable.id),
       )
-      .limit(5)
+      .limit(10)
 
     return transactions
   })

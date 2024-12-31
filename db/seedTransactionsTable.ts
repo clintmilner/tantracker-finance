@@ -17,9 +17,20 @@ async function main() {
   const transactions: (typeof transactionsTable.$inferInsert)[] = []
 
   const userId: string = 'user_2qo44VpEJKl1FOfKnKZgJXPmurg'
-  const currentDate: Date = new Date()
-  const startDate: Date = new Date()
-  startDate.setFullYear(currentDate.getFullYear() - 3) // 3 years ago
+
+  const categoriesSeedData = [
+    { id: 1, name: 'Salary', type: 'income' },
+    { id: 2, name: 'Rental Income', type: 'income' },
+    { id: 3, name: 'Business Income', type: 'income' },
+    { id: 4, name: 'Investments', type: 'income' },
+    { id: 5, name: 'Other Income', type: 'income' },
+    { id: 6, name: 'Housing', type: 'expense' },
+    { id: 7, name: 'Transport', type: 'expense' },
+    { id: 8, name: 'Food & Groceries', type: 'expense' },
+    { id: 9, name: 'Health', type: 'expense' },
+    { id: 10, name: 'Entertainment & Leisure', type: 'expense' },
+    { id: 11, name: 'Other Expenses', type: 'expense' },
+  ]
 
   // Helper function to get a random day for a given month/year
   function getRandomDay(year: number, month: number): number {
@@ -27,40 +38,83 @@ async function main() {
     return Math.floor(Math.random() * daysInMonth) + 1 // Random day between 1 and daysInMonth
   }
 
-  // Generate 36 months of transactions
-  for (let i = 0; i < 36; i++) {
-    const transactionDate: Date = new Date(startDate)
-    transactionDate.setMonth(startDate.getMonth() + i)
+  // Iterate over 5 years and 12 months per year
+  for (let year = 2020; year < 2025; year++) {
+    // From 2020 to 2024
+    for (let month = 0; month < 12; month++) {
+      // Months 0 to 11 (January to December)
 
-    // Randomize the day of the month
-    const randomDay: number = getRandomDay(
-      transactionDate.getFullYear(),
-      transactionDate.getMonth(),
-    )
-    transactionDate.setDate(randomDay)
+      // Randomize 5 expense categories
+      const expenseCategories = categoriesSeedData.filter(
+        (cat) => cat.type === 'expense',
+      )
+      const randomExpenseCategories: {
+        id: number
+        name: string
+        type: string
+      }[] = [] // Explicitly typing the array
 
-    // Generate random income and expense amounts
-    const isIncome: boolean = i % 2 === 0 // Even months for income, odd for expense
-    const amount: number = isIncome
-      ? parseFloat((Math.random() * 3000 + 2000).toFixed(2)) // Income between 2000 and 5000
-      : parseFloat((Math.random() * 500 + 50).toFixed(2)) // Expense between 50 and 550
+      while (randomExpenseCategories.length < 5) {
+        const randomCategory =
+          expenseCategories[
+            Math.floor(Math.random() * expenseCategories.length)
+          ]
+        if (!randomExpenseCategories.includes(randomCategory)) {
+          randomExpenseCategories.push(randomCategory)
+        }
+      }
 
-    const categoryId: number = isIncome ? 1 : 2 // Assuming category 1 is 'Salary' (income), category 2 is 'Groceries' (expense)
-    const description: string = isIncome
-      ? 'Salary Payment'
-      : 'Groceries Purchase'
+      // Randomize 2 income categories
+      const incomeCategories = categoriesSeedData.filter(
+        (cat) => cat.type === 'income',
+      )
+      const randomIncomeCategories: {
+        id: number
+        name: string
+        type: string
+      }[] = [] // Explicitly typing the array
 
-    transactions.push({
-      userId: userId,
-      description: description,
-      amount: amount.toString(),
-      transactionDate: transactionDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
-      categoryId: categoryId,
-    })
+      while (randomIncomeCategories.length < 2) {
+        const randomCategory =
+          incomeCategories[Math.floor(Math.random() * incomeCategories.length)]
+        if (!randomIncomeCategories.includes(randomCategory)) {
+          randomIncomeCategories.push(randomCategory)
+        }
+      }
+
+      // Generate 5 expense transactions for this month
+      randomExpenseCategories.forEach((randomCategory) => {
+        const randomDay = getRandomDay(year, month)
+        const amount = parseFloat((Math.random() * 1500 + 10).toFixed(2)) // Expense between 10 and 1510
+        const description = `Expense on ${randomCategory.name}`
+        transactions.push({
+          userId: userId,
+          description: description,
+          amount: amount.toString(),
+          transactionDate: `${year}-${String(month + 1).padStart(2, '0')}-${String(randomDay).padStart(2, '0')}`,
+          categoryId: randomCategory.id,
+        })
+      })
+
+      // Generate 2 income transactions for this month
+      randomIncomeCategories.forEach((randomCategory) => {
+        const randomDay = getRandomDay(year, month)
+        const amount = parseFloat((Math.random() * 3000 + 2000).toFixed(2)) // Income between 2000 and 5000
+        const description = `Income from ${randomCategory.name}`
+        transactions.push({
+          userId: userId,
+          description: description,
+          amount: amount.toString(),
+          transactionDate: `${year}-${String(month + 1).padStart(2, '0')}-${String(randomDay).padStart(2, '0')}`,
+          categoryId: randomCategory.id,
+        })
+      })
+    }
   }
 
-  console.log(transactions)
+  console.log(`Generated ${transactions.length} transactions.`)
 
+  // Insert the generated transactions into the database
   await db.insert(transactionsTable).values(transactions)
 }
 

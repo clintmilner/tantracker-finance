@@ -22,10 +22,11 @@ import { Bar, BarChart, CartesianGrid, Legend, XAxis, YAxis } from 'recharts'
 interface Props {
   cashflow: Cashflow[]
   yearsRange: number[]
-  year: number
+  financialYear: number
 }
 
-const CashflowChart = ({ cashflow, yearsRange, year }: Props) => {
+const CashflowChart = ({ cashflow, yearsRange, financialYear }: Props) => {
+  console.log(cashflow[0])
   const navigate = useNavigate()
   const chartConfig: ChartConfig = {
     income: {
@@ -53,12 +54,13 @@ const CashflowChart = ({ cashflow, yearsRange, year }: Props) => {
           <span>Cashflow</span>
           <div>
             <Select
-              defaultValue={year.toString()}
-              onValueChange={async (value) => {
-                await navigate({
+              defaultValue={financialYear.toString()}
+              onValueChange={(value) => {
+                console.log(value)
+                navigate({
                   to: '/dashboard',
                   search: {
-                    year: value,
+                    financialYear: value,
                   },
                 })
               }}
@@ -87,7 +89,7 @@ const CashflowChart = ({ cashflow, yearsRange, year }: Props) => {
             <XAxis
               dataKey={'month'}
               tickFormatter={(month) => {
-                return format(new Date(year, month - 1, 1), 'MMM')
+                return format(new Date(financialYear, month - 1, 1), 'MMM')
               }}
             />
             <Legend align={'right'} verticalAlign={'top'} />
@@ -98,7 +100,11 @@ const CashflowChart = ({ cashflow, yearsRange, year }: Props) => {
                     return (
                       <div>
                         {format(
-                          new Date(year, payload[0]?.payload?.month - 1, 1),
+                          new Date(
+                            financialYear,
+                            payload[0]?.payload?.month - 1,
+                            1,
+                          ),
                           'MMM',
                         )}
                       </div>
